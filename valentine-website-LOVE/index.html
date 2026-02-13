@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be KoKoe Valentine? 💝</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap');
+
+        :root {
+            --bg-start: #ffafbd;
+            --bg-end: #ffc3a0;
+            --btn-bg: #ff6b6b;
+            --btn-hover: #ff8787;
+            --text-main: #ff4757;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrolling entirely */
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        /* Floating Animation */
+        .floating-element {
+            position: absolute;
+            font-size: 2rem;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) translateX(0); opacity: 1; }
+            50% { transform: translateY(50vh) translateX(50px); opacity: 0.8; }
+            100% { transform: translateY(-10vh) translateX(-50px); opacity: 0; }
+        }
+
+        /* Card Styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px 0 rgba(255, 71, 87, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            z-index: 10;
+            transition: max-width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn {
+            background-color: var(--btn-bg);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 0.5rem;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover);
+            transform: scale(1.1);
+        }
+
+        #no-btn {
+            z-index: 1000; /* Ensure it stays above everything when moving */
+        }
+
+        .btn-bounce {
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+
+        /* Love Meter Customization */
+        .meter-wrapper {
+            position: relative;
+            width: 120px; 
+            margin: 20px auto;
+            height: 12px;
+            background: #ffd3d3;
+            border-radius: 6px;
+            overflow: hidden; 
+        }
+
+        #meter-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--text-main);
+            width: 0%;
+            pointer-events: none;
+        }
+
+        .love-meter-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            outline: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .love-meter-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--text-main);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        /* Subtitles */
+        #subtitles {
+            position: fixed;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        /* Final Explosion */
+        .explosion-heart {
+            position: fixed;
+            pointer-events: none;
+            animation: explode 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5) translateY(-100px); opacity: 0; }
+        }
+
+        .hidden { display: none; }
+        
+        #error-log {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="error-log" class="hidden"></div>
+    <div id="bg-container"></div>
+    <div id="subtitles"></div>
+
+<audio id="bg-music" src="music/JVKE_-_her_Live_Lyric_Video_128KBPS.mp3" loop preload="auto"></audio>
+
+    <div id="app" class="glass-card">
+        
+        <div id="step-1">
+            <h1 class="text-3xl font-bold mb-6">Kokoe Baby😘</h1>
+            <p class="text-xl mb-8">Do you like me?</p>
+            <div class="flex justify-center gap-4">
+                <button onclick="startApp(true)" class="btn">Yes</button>
+                <button onclick="handleNoFirst()" class="btn">No</button>
+            </div>
+            <p id="secret-msg" class="mt-4 font-bold text-lg hidden italic">I don't like you, I love you! ❤️</p>
+        </div>
+
+        <div id="step-2" class="hidden">
+            <h1 class="text-3xl font-bold mb-4">How much do you love me?</h1>
+            <p class="text-lg">This much!</p>
+            <h2 id="percentage-display" class="text-4xl font-bold my-4">0%</h2>
+            
+            <div class="meter-wrapper" id="meter-container">
+                <div id="meter-fill"></div>
+                <input type="range" min="0" max="10000" value="0" step="10" class="love-meter-range" id="meter" oninput="updateMeter(this.value)">
+            </div>
+
+            <p id="meter-msg" class="h-8 italic mb-4">🥰</p>
+            <button onclick="nextStep(3)" class="btn btn-bounce">Next ❤️</button>
+        </div>
+
+        <div id="step-3" class="hidden">
+            <h1 class="text-3xl font-bold mb-6">Will you be my Valentine...?</h1>
+            <div class="flex flex-col items-center gap-4">
+                <button id="final-yes" onclick="celebrate()" class="btn px-12 py-4 text-2xl">Yes!</button>
+                <button id="no-btn" onmouseover="dodgeButton()" onclick="dodgeButton()" class="btn bg-gray-400">No</button>
+            </div>
+        </div>
+
+        <div id="step-4" class="hidden">
+            <h1 class="text-3xl font-bold mb-4">Yay! I'm the luckiest person...</h1>
+            <p class="text-xl mb-6">KoKoe's MeeMee,<br><br>
+        "Even though we won’t be together this Valentine’s Day, my heart is bursting with love for you every single moment. I can’t wait for you to come back so I can see your smile light up my world again, Baby. I can't wait to give you whatever special gift you want, just for my lovely little Sweetie, because you deserve all the sweetness in life. Every thought of you makes me happier, and I want you to feel how much I adore you, Baby."<br><br>
+        Always yours, Kokoe 💖</p>
+            <div class="text-4xl mb-6 animate-pulse">🎁💖🤗💝💋❤️💕</div>
+            <button onclick="location.reload()" class="text-sm underline opacity-70">Restart</button>
+        </div>
+
+    </div>
+
+    <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+        <button id="music-btn" class="bg-white/30 p-3 rounded-full backdrop-blur-sm hidden hover:bg-white/50" onclick="toggleMusic()">
+            🎵
+        </button>
+        <button id="sub-toggle" class="bg-white/30 px-3 py-1 rounded-full backdrop-blur-sm hidden text-xs font-bold" onclick="toggleSubs()">
+            CC ON
+        </button>
+    </div>
+
+    <script>
+        const music = document.getElementById('bg-music');
+        const bgContainer = document.getElementById('bg-container');
+        const subDiv = document.getElementById('subtitles');
+        const errLog = document.getElementById('error-log');
+        const appCard = document.getElementById('app');
+        const meterFill = document.getElementById('meter-fill');
+        const meterContainer = document.getElementById('meter-container');
+        
+        let musicStarted = false;
+        let subsEnabled = true;
+
+        const floatingItems = ['❤️', '💖', '💝', '💗', '💓', '🧸', '🐻'];
+        music.volume = 0.5;
+
+        music.onerror = () => {
+            errLog.classList.remove('hidden');
+            errLog.innerHTML = `<strong>Music Error:</strong><br>The audio source is unavailable.`;
+        };
+
+        function createFloater() {
+            const el = document.createElement('div');
+            el.className = 'floating-element';
+            el.innerText = floatingItems[Math.floor(Math.random() * floatingItems.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (12 + Math.random() * 6) + 's'; 
+            bgContainer.appendChild(el);
+            setTimeout(() => el.remove(), 18000);
+        }
+        setInterval(createFloater, 600);
+
+        const subtitleTracks = [
+            { start: 31.0, end: 34.5, text: "Til I found her" },
+            { start: 35.5, end: 39.0, text: "I found her" }
+        ];
+
+        music.ontimeupdate = () => {
+            if (!subsEnabled) return;
+            const currentTime = music.currentTime;
+            const track = subtitleTracks.find(t => currentTime >= t.start && currentTime < t.end);
+            
+            if (track) {
+                if (subDiv.innerText !== track.text) {
+                    subDiv.innerText = track.text;
+                    subDiv.style.display = 'block';
+                    setTimeout(() => subDiv.style.opacity = '1', 50);
+                }
+            } else {
+                subDiv.style.opacity = '0';
+            }
+        };
+
+        function startApp(isYes) {
+            if (!musicStarted) {
+                music.play().catch(() => {
+                    document.getElementById('music-btn').classList.remove('hidden');
+                });
+                document.getElementById('music-btn').classList.remove('hidden');
+                document.getElementById('sub-toggle').classList.remove('hidden');
+                musicStarted = true;
+            }
+            if (isYes) nextStep(2);
+        }
+
+        function handleNoFirst() {
+            const secret = document.getElementById('secret-msg');
+            secret.classList.remove('hidden');
+            startApp(false);
+            setTimeout(() => nextStep(2), 2500);
+        }
+
+        function nextStep(num) {
+            document.querySelectorAll('#app > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(`step-${num}`).classList.remove('hidden');
+        }
+
+        function updateMeter(val) {
+            const display = document.getElementById('percentage-display');
+            const msg = document.getElementById('meter-msg');
+            display.innerText = val + "%";
+
+            const percentage = val / 10000;
+            meterFill.style.width = (percentage * 100) + "%";
+
+            if (val > 200) {
+                const expansionFactor = (val - 200) / (10000 - 200);
+                const newWidth = 500 + (window.innerWidth - 500) * expansionFactor;
+                appCard.style.maxWidth = `${newWidth}px`;
+                appCard.style.width = '100%';
+                meterContainer.style.width = (120 + (window.innerWidth - 200) * expansionFactor) + 'px';
+            } else {
+                appCard.style.maxWidth = '500px';
+                appCard.style.width = '90%';
+                meterContainer.style.width = '120px';
+            }
+
+            if (val >= 10000) msg.innerText = "I LOVE YOU TO THE EDGE OF THE UNIVERSE! 💖👑🔥";
+            else if (val > 5000) msg.innerText = "WOOOOW You love me that much?? 🥰🚀💝";
+            else if (val > 1000) msg.innerText = "To infinity and beyond! 🚀💝";
+            else msg.innerText = "🥰";
+        }
+
+        function dodgeButton() {
+            const btn = document.getElementById('no-btn');
+            btn.style.position = 'fixed';
+            
+            // Increased padding to ensure it doesn't touch edges
+            const padding = 100; 
+            const maxX = Math.max(padding, window.innerWidth - btn.offsetWidth - padding);
+            const maxY = Math.max(padding, window.innerHeight - btn.offsetHeight - padding);
+            
+            const randomX = padding + Math.random() * (maxX - padding);
+            const randomY = padding + Math.random() * (maxY - padding);
+            
+            btn.style.left = randomX + 'px';
+            btn.style.top = randomY + 'px';
+            btn.style.margin = '0';
+        }
+
+        function celebrate() {
+            nextStep(4);
+            for (let i = 0; i < 60; i++) {
+                setTimeout(createExplosionHeart, i * 40);
+            }
+        }
+
+        function createExplosionHeart() {
+            const h = document.createElement('div');
+            h.className = 'explosion-heart';
+            h.innerText = '❤️';
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.top = Math.random() * 100 + 'vh';
+            h.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 1000);
+        }
+
+        function toggleMusic() {
+            if (music.paused) music.play();
+            else music.pause();
+        }
+
+        function toggleSubs() {
+            subsEnabled = !subsEnabled;
+            const btn = document.getElementById('sub-toggle');
+            btn.innerText = subsEnabled ? "CC ON" : "CC OFF";
+            if (!subsEnabled) subDiv.style.opacity = '0';
+        }
+    </script>
+</body>
+</html>
